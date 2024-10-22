@@ -2,7 +2,7 @@ import express from "express";
 import { config } from "dotenv";
 import mongoose from "mongoose";
 import multer from "multer";
-import cloudinary from './cloudinary.js'; // Import cloudinary config
+import cloudinary from './cloudinary.js';
 config();
 
 const app = express();
@@ -38,14 +38,7 @@ const audioSchema = new mongoose.Schema({
 
 const audioModel = mongoose.model("audioModel", audioSchema);
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "./uploads");
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({ storage });
 
@@ -68,6 +61,7 @@ app.get("/", (req, res) => {
 app.post(
   "/upload",
   (req, res, next) => {
+    // Ensure "file" matches the form field name for the file upload
     upload.single("file")(req, res, (err) => {
       if (err instanceof multer.MulterError) {
         console.error("Multer error:", err);
@@ -86,7 +80,8 @@ app.post(
     try {
       console.log("File received:", req.file);
 
-      const data = await cloudinaryUploadImage(req.file.path);
+      // Use buffer since file.path won't be available with memoryStorage
+      const data = await cloudinaryUploadImage(req.file.buffer); 
       const newAudio = {
         songName: req.body.name,
         authorName: req.body.author,
@@ -101,6 +96,8 @@ app.post(
   }
 );
 
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
