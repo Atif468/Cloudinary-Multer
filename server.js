@@ -11,8 +11,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set("view engine", "ejs");
 
+console.log(process.env.MONGO_URI)
 mongoose
-  .connect("mongodb://127.0.0.1:27017", { dbName: "audioBlob" })
+  .connect("mongodb+srv://atif:atif123@podcast.9l8gq.mongodb.net/?retryWrites=true&w=majority&appName=podcast")
   .then(() => {
     console.log("Database connected");
   })
